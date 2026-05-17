@@ -1,0 +1,17 @@
+{
+  "name": "onthi-tthcm-mongo",
+  "version": "1.0.0",
+  "description": "Hệ thống ôn thi môn Tư tưởng Hồ Chí Minh",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "numrun dev server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "ejs": "^3.1.9",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "mongoose": "^8.3.1"
+  }
+}

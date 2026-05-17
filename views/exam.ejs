@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= exam.tieu_de %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .option-card:hover { background-color: #fef2f2; border-color: #c62828; }
+        .option-selected { background-color: #fef2f2; border-color: #c62828; position: relative; }
+        .option-selected::after { content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #c62828; }
+        .q-grid-item.active { background: #1e293b; color: white; border-color: #1e293b; }
+        .q-grid-item.answered { background: #c62828; color: white; border-color: #c62828; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 h-screen flex flex-col overflow-hidden">
+    <header class="bg-white/95 backdrop-blur-md shadow-sm border-b border-slate-100 h-16 flex-none z-50">
+        <div class="container mx-auto px-4 h-full flex justify-between items-center">
+            <a href="javascript:history.back()" class="text-slate-500 hover:text-brand-red mr-4"><i class="fa-solid fa-arrow-left"></i></a>
+            <h1 class="font-serif font-bold text-lg text-brand-red truncate max-w-xs flex-grow"><%= exam.tieu_de %></h1>
+            <div class="glass-card px-4 py-1 rounded-full flex items-center gap-2 border-brand-red/20 mr-4">
+                <i class="fa-regular fa-clock text-brand-red"></i>
+                <span id="timer" class="font-mono font-bold text-xl text-slate-800">--:--</span>
+            </div>
+            <button onclick="submitExam()" class="bg-brand-red text-white px-5 py-2 rounded-lg font-bold shadow-md hover:bg-red-700 text-sm">Nộp bài</button>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-6 flex gap-6 overflow-hidden h-[calc(100vh-64px)]">
+        <div class="w-full lg:w-3/4 flex flex-col h-full gap-4">
+            <div class="w-full bg-slate-200 rounded-full h-1.5 flex-none"><div id="progress-bar" class="bg-brand-gold h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div></div>
+            <div class="glass-card bg-white rounded-2xl p-8 flex-grow overflow-y-auto shadow-sm border border-slate-100 relative">
+                <div id="question-container"></div>
+            </div>
+            <div class="flex justify-between items-center flex-none py-2">
+                <button onclick="changeQuestion(-1)" id="btn-prev" class="px-6 py-3 rounded-xl border border-slate-200 hover:bg-slate-50 disabled:opacity-50 font-semibold text-slate-600">Trước</button>
+                <button onclick="changeQuestion(1)" id="btn-next" class="px-8 py-3 rounded-xl bg-brand-red text-white font-bold shadow-lg">Sau</button>
+            </div>
+        </div>
+        <div class="hidden lg:flex w-1/4 flex-col h-full">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 h-full flex flex-col">
+                <h3 class="font-bold text-slate-700 mb-4">Danh sách câu hỏi</h3>
+                <div class="flex-grow overflow-y-auto pr-2 custom-scrollbar">
+                    <div id="question-grid" class="grid grid-cols-5 gap-2"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Dữ liệu được nhúng trực tiếp từ MongoDB thông qua EJS
+        const quizData = <%- JSON.stringify(exam.cau_hoi) %>;
+        const examId = '<%= exam._id %>';
+        const timeLimit = <%= exam.thoi_gian || 45 %>;
+
+        let currentQuestionIndex = 0;
+        let userAnswers = new Array(quizData.length).fill(null);
+        let timeLeft = timeLimit * 60; 
+        let timerInterval;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if(quizData.length === 0) return alert('Đề thi chưa có câu hỏi!');
+            renderGrid();
+            loadQuestion(0);
+            startTimer();
+        });
+
+        function renderGrid() {
+            const grid = document.getElementById('question-grid');
+            grid.innerHTML = '';
+            quizData.forEach((_, i) => {
+                const item = document.createElement('div');
+                item.className = `q-grid-item flex items-center justify-center w-9 h-9 rounded-lg border border-slate-200 text-sm font-semibold cursor-pointer hover:bg-slate-100 ${i===0?'active':''}`;
+                item.innerText = i + 1;
+                item.onclick = () => loadQuestion(i);
+                item.id = `grid-item-${i}`;
+                grid.appendChild(item);
+            });
+        }
+
+        function loadQuestion(index) {
+            currentQuestionIndex = index;
+            const q = quizData[index];
+            const container = document.getElementById('question-container');
+            
+            document.querySelectorAll('.q-grid-item').forEach(e => e.classList.remove('active'));
+            document.getElementById(`grid-item-${index}`).classList.add('active');
+
+            // Format mảng option cho giống bản cũ
+            const options = [
+                {code: 'A', content: q.cauA}, {code: 'B', content: q.cauB},
+                {code: 'C', content: q.cauC}, {code: 'D', content: q.cauD}
+            ];
+
+            let html = `
+                <div class="mb-6 animate-fade-in">
+                    <span class="text-brand-red font-bold text-sm bg-red-50 px-3 py-1 rounded-full mb-3 inline-block">Câu ${index + 1}</span>
+                    <h3 class="text-xl font-serif font-bold text-slate-800 leading-snug">${q.cauHoi}</h3>
+                </div>
+                <div class="space-y-3 animate-fade-in">
+            `;
+
+            options.forEach(opt => {
+                const isSelected = userAnswers[index] === opt.code ? 'option-selected' : '';
+                html += `
+                    <div onclick="selectAnswer(${index}, '${opt.code}')" 
+                         class="option-card p-4 rounded-xl border border-slate-200 flex items-center gap-4 bg-white cursor-pointer transition-all ${isSelected}">
+                        <div class="w-8 h-8 rounded-full border-2 border-slate-300 flex items-center justify-center flex-none text-sm font-bold text-slate-500">${opt.code}</div>
+                        <span class="text-slate-700 font-medium">${opt.content}</span>
+                    </div>
+                `;
+            });
+            html += `</div>`;
+            container.innerHTML = html;
+            updateButtons();
+        }
+
+        function selectAnswer(index, code) {
+            userAnswers[index] = code;
+            document.getElementById(`grid-item-${index}`).classList.add('answered');
+            loadQuestion(index);
+            updateProgressBar();
+        }
+
+        function updateButtons() {
+            document.getElementById('btn-prev').disabled = currentQuestionIndex === 0;
+            const nextBtn = document.getElementById('btn-next');
+            if (currentQuestionIndex === quizData.length - 1) {
+                nextBtn.innerText = 'Nộp bài';
+                nextBtn.onclick = submitExam;
+                nextBtn.classList.replace('bg-brand-red', 'bg-green-600');
+            } else {
+                nextBtn.innerText = 'Sau';
+                nextBtn.onclick = () => changeQuestion(1);
+                nextBtn.classList.remove('bg-green-600');
+                nextBtn.classList.add('bg-brand-red');
+            }
+        }
+
+        function changeQuestion(dir) {
+            const newIndex = currentQuestionIndex + dir;
+            if (newIndex >= 0 && newIndex < quizData.length) loadQuestion(newIndex);
+        }
+
+        function updateProgressBar() {
+            const count = userAnswers.filter(a => a).length;
+            document.getElementById('progress-bar').style.width = `${(count/quizData.length)*100}%`;
+        }
+
+        function startTimer() {
+            const el = document.getElementById('timer');
+            timerInterval = setInterval(() => {
+                if(timeLeft <= 0) { clearInterval(timerInterval); submitExam(); return; }
+                timeLeft--;
+                const m = Math.floor(timeLeft/60).toString().padStart(2,'0');
+                const s = (timeLeft%60).toString().padStart(2,'0');
+                el.innerText = `${m}:${s}`;
+            }, 1000);
+        }
+
+        function submitExam() {
+            clearInterval(timerInterval);
+            
+            // Lấy đáp án gửi lên Node.js Controller qua API
+            const details = [];
+            quizData.forEach((q, i) => {
+                details.push({
+                    question_id: q._id,
+                    selected: userAnswers[i]
+                });
+            });
+
+            fetch('/exam/' + examId + '/submit', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ answers: details }) 
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    window.location.href = `/result/${data.result_id}`;
+                } else {
+                    alert('Lỗi: ' + data.message);
+                }
+            })
+            .catch(err => alert('Lỗi kết nối server: ' + err));
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<%- include('partials/header') %>
+
+<div class="max-w-4xl mx-auto mb-10 text-center">
+    <span class="inline-block py-1 px-3 rounded-full bg-brand-red/10 text-brand-red text-sm font-bold mb-4">
+        CHƯƠNG <%= chuong.so_thu_tu %>
+    </span>
+    <h1 class="font-serif text-3xl md:text-4xl font-bold text-slate-900 mb-6"><%= chuong.ten_chuong %></h1>
+    <div class="p-6 bg-white rounded-2xl shadow-sm border border-slate-200 text-left">
+        <p class="text-slate-600 leading-relaxed"><%= chuong.noi_dung %></p>
+    </div>
+</div>
+
+<div class="max-w-4xl mx-auto space-y-8">
+    <h2 class="text-2xl font-bold text-slate-800 border-l-4 border-brand-gold pl-4 mb-6">Nội dung bài học</h2>
+
+    <% if (dsBaiHoc && dsBaiHoc.length > 0) { %>
+        <% dsBaiHoc.forEach(function(bai, index) { %>
+            <article class="bg-white rounded-2xl shadow-md overflow-hidden border border-slate-100 transition hover:shadow-lg">
+                <div class="bg-slate-50 p-4 border-b border-slate-100 flex items-center justify-between cursor-pointer" onclick="toggleBaiHoc(<%= index %>)">
+                    <h3 class="font-bold text-lg text-brand-dark flex items-center gap-3">
+                        <span class="flex items-center justify-center w-8 h-8 rounded-full bg-brand-red text-white text-sm"><%= index + 1 %></span>
+                        <%= bai.ten_bai %>
+                    </h3>
+                    <i class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-300" id="icon-<%= index %>"></i>
+                </div>
+
+                <div class="<%= index === 0 ? '' : 'hidden' %> p-6 md:p-8 space-y-6" id="content-<%= index %>">
+                    <% if (bai.video_url) { %>
+                        <div class="relative aspect-video rounded-xl overflow-hidden shadow-sm bg-black">
+                            <iframe class="absolute top-0 left-0 w-full h-full" src="<%= bai.video_url %>" frameborder="0" allowfullscreen></iframe>
+                        </div>
+                    <% } %>
+                    <div class="prose prose-slate max-w-none text-slate-600 leading-loose text-justify">
+                        <%- bai.noi_dung %>
+                    </div>
+                </div>
+            </article>
+        <% }); %>
+    <% } else { %>
+        <div class="text-center py-12 bg-white rounded-2xl border border-dashed border-slate-300">
+            <p class="text-slate-500">Nội dung bài học đang được cập nhật.</p>
+        </div>
+    <% } %>
+</div>
+
+<div class="max-w-4xl mx-auto mt-12 flex justify-between">
+    <a href="/index" class="px-6 py-3 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-50 font-medium transition"><i class="fa-solid fa-arrow-left mr-2"></i> Chọn chương khác</a>
+    <a href="/list_exams?type=theo_chuong&chuong_id=<%= chuong.so_thu_tu %>" class="px-6 py-3 rounded-xl bg-brand-red text-white hover:bg-red-700 font-bold shadow-lg transition">Luyện đề chương này <i class="fa-solid fa-arrow-right ml-2"></i></a>
+</div>
+
+<script>
+    function toggleBaiHoc(index) {
+        const content = document.getElementById(`content-${index}`);
+        const icon = document.getElementById(`icon-${index}`);
+        if (content.classList.contains('hidden')) {
+            content.classList.remove('hidden');
+            icon.style.transform = 'rotate(180deg)';
+        } else {
+            content.classList.add('hidden');
+            icon.style.transform = 'rotate(0deg)';
+        }
+    }
+</script>
+<%- include('partials/footer') %>
