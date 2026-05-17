@@ -1,0 +1,60 @@
+<%- include('partials/header') %>
+
+<div class="max-w-4xl mx-auto my-10 px-4">
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="bg-slate-800 p-8 text-white flex items-center gap-6">
+            <div class="w-20 h-20 bg-blue-500 rounded-full flex items-center justify-center text-4xl font-bold shadow-inner">
+                <i class="fa-solid fa-user"></i>
+            </div>
+            <div>
+                <h1 class="text-3xl font-bold mb-1"><%= user.ho_va_ten %></h1>
+                <p class="text-slate-300"><i class="fa-solid fa-envelope mr-2"></i> <%= user.email %></p>
+                <span class="inline-block mt-3 px-3 py-1 bg-slate-700 rounded-full text-xs font-semibold uppercase tracking-wider">
+                    Vai trò: <%= user.role === 'admin' ? 'Quản trị viên' : 'Học viên' %>
+                </span>
+            </div>
+        </div>
+
+        <div class="p-8">
+            <h2 class="text-2xl font-bold text-slate-800 mb-6 border-b pb-3"><i class="fa-solid fa-clock-rotate-left mr-2"></i> Lịch sử làm bài</h2>
+            
+            <% if (histories && histories.length > 0) { %>
+                <div class="overflow-x-auto rounded-xl border border-slate-200">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-600 border-b">
+                                <th class="p-4 font-semibold">Tên bài thi</th>
+                                <th class="p-4 font-semibold text-center">Điểm số</th>
+                                <th class="p-4 font-semibold text-center">Chi tiết</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% histories.forEach(h => { %>
+                                <tr class="hover:bg-slate-50 transition border-b last:border-b-0">
+                                    <td class="p-4 font-medium text-slate-800"><%= h.ten_bai_thi %></td>
+                                    <td class="p-4 text-center">
+                                        <span class="inline-block px-4 py-1.5 rounded-full text-sm font-bold <%= h.diem_so >= 5 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' %>">
+                                            <%= h.diem_so %> / 10
+                                        </span>
+                                    </td>
+                                    <td class="p-4 text-center">
+                                        <a href="/result/<%= h._id %>" class="text-blue-600 hover:text-blue-800 font-medium text-sm transition">
+                                            Xem lại <i class="fa-solid fa-arrow-up-right-from-square ml-1"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } else { %>
+                <div class="text-center py-10 bg-slate-50 rounded-xl border border-dashed border-slate-300">
+                    <div class="text-4xl text-slate-300 mb-3"><i class="fa-solid fa-clipboard-list"></i></div>
+                    <p class="text-slate-500 font-medium">Bạn chưa hoàn thành bài thi nào.</p>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<%- include('partials/footer') %>

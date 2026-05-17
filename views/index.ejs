@@ -1,57 +1,69 @@
 <%- include('partials/header') %>
 
-<div class="hero-bg rounded-3xl p-8 md:p-16 mb-12 text-center shadow-2xl relative overflow-hidden border border-red-900/50 mt-4">
-    <div class="absolute inset-0 bg-black/30"></div>
-    <div class="relative z-10 max-w-3xl mx-auto">
-        <span class="inline-block py-1 px-3 rounded-full bg-white/20 text-white text-sm font-bold mb-6 backdrop-blur-sm border border-white/30">Nền tảng học tập số</span>
-        <h1 class="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight drop-shadow-lg">
-            Hệ thống Ôn thi <br><span class="text-brand-gold">Tư tưởng Hồ Chí Minh</span>
-        </h1>
-        <p class="text-red-50 text-lg mb-10 max-w-2xl mx-auto leading-relaxed drop-shadow">
-            Khám phá lý thuyết, luyện tập trắc nghiệm và thi thử với ngân hàng câu hỏi chuẩn cấu trúc đề thi chính thức.
-        </p>
-        <div class="flex flex-col sm:flex-row justify-center gap-4">
-            <a href="#chapter-section" class="px-8 py-4 bg-brand-gold text-brand-dark font-bold rounded-xl hover:bg-yellow-400 transition shadow-[0_0_20px_rgba(251,192,45,0.4)] transform hover:-translate-y-1">
-                <i class="fa-solid fa-book-open mr-2"></i> Bắt đầu ôn tập
-            </a>
-            <a href="/list_exams?type=thi_thu" class="px-8 py-4 bg-white/10 text-white border border-white/30 font-bold rounded-xl hover:bg-white/20 backdrop-blur-sm transition transform hover:-translate-y-1">
-                <i class="fa-solid fa-graduation-cap mr-2"></i> Thi thử ngay
-            </a>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+    <div class="relative bg-gradient-to-r from-red-700 to-red-500 rounded-3xl overflow-hidden shadow-xl mb-12">
+        <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+        
+        <div class="relative px-8 py-20 text-center">
+            <span class="inline-block py-1 px-4 rounded-full bg-white/20 text-white text-sm font-semibold mb-6 backdrop-blur-sm border border-white/30">
+                Nền tảng học tập số
+            </span>
+            
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 drop-shadow-md leading-tight">
+                Hệ thống Ôn thi <br/> Tư tưởng Hồ Chí Minh
+            </h1>
+            
+            <p class="text-lg text-red-50 max-w-2xl mx-auto mb-10 font-medium drop-shadow">
+                Khám phá lý thuyết, luyện tập trắc nghiệm và thi thử với ngân hàng câu hỏi chuẩn cấu trúc đề thi chính thức.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="#lo-trinh" class="inline-flex justify-center items-center px-6 py-3 bg-white text-red-700 font-bold rounded-xl shadow-lg hover:bg-slate-50 hover:-translate-y-1 transition duration-300">
+                    <i class="fa-solid fa-book-open mr-2"></i> Bắt đầu ôn tập
+                </a>
+                <a href="/list_exams?type=thi_thu" class="inline-flex justify-center items-center px-6 py-3 bg-red-800/40 text-white border border-red-300/50 font-bold rounded-xl shadow-lg hover:bg-red-800/60 hover:-translate-y-1 backdrop-blur-sm transition duration-300">
+                    <i class="fa-solid fa-graduation-cap mr-2"></i> Thi thử ngay
+                </a>
+            </div>
         </div>
     </div>
-</div>
-
-<div id="chapter-section" class="mb-8">
-    <div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
-        <div>
-            <h2 class="font-serif text-3xl font-bold text-slate-800 flex items-center gap-3">
-                <i class="fa-solid fa-bookmark text-brand-red"></i> Lộ trình học tập
+    <div id="lo-trinh" class="mb-12">
+        <div class="mb-8 border-b pb-4">
+            <h2 class="text-3xl font-bold text-slate-800 flex items-center gap-3">
+                <i class="fa-solid fa-bookmark text-blue-600"></i> Lộ trình học tập
             </h2>
             <p class="text-slate-500 mt-2">Chọn chương để ôn lý thuyết và làm bài tập theo từng chủ đề.</p>
         </div>
-    </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <% if (dsChuong && dsChuong.length > 0) { %>
-            <% dsChuong.forEach(function(chuong) { %>
-                <div class="glass-card bg-white rounded-2xl p-6 border border-slate-200 hover:border-brand-red/30 transition shadow-sm group">
-                    <div class="flex justify-between items-start mb-4">
-                        <span class="bg-red-50 text-brand-red text-sm font-bold px-3 py-1 rounded-full group-hover:bg-brand-red group-hover:text-white transition">Chương <%= chuong.so_thu_tu %></span>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <% if (dsChuong && dsChuong.length > 0) { %>
+                <% dsChuong.forEach(chuong => { %>
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-all duration-300 hover:-translate-y-1 flex flex-col">
+                        <div class="p-6 flex-grow">
+                            <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-xl font-bold mb-4">
+                                <%= chuong.so_thu_tu %>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-800 mb-2 line-clamp-2"><%= chuong.ten_chuong %></h3>
+                            <p class="text-slate-500 text-sm line-clamp-3"><%= chuong.noi_dung || 'Nội dung đang cập nhật...' %></p>
+                        </div>
+                        <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-between items-center mt-auto">
+                            <a href="/chuong/<%= chuong.so_thu_tu %>" class="text-blue-600 font-semibold hover:text-blue-800 transition flex items-center gap-1">
+                                Vào học <i class="fa-solid fa-arrow-right text-sm"></i>
+                            </a>
+                            <a href="/list_exams?type=theo_chuong&chuong_id=<%= chuong.so_thu_tu %>" class="text-emerald-600 font-semibold hover:text-emerald-800 transition flex items-center gap-1">
+                                Luyện đề <i class="fa-solid fa-pen-to-square text-sm"></i>
+                            </a>
+                        </div>
                     </div>
-                    <h3 class="font-bold text-xl text-slate-800 mb-2 leading-snug"><%= chuong.ten_chuong %></h3>
-                    <p class="text-slate-500 text-sm mb-6 line-clamp-2"><%= chuong.noi_dung || "Nội dung chương đang được cập nhật." %></p>
-                    <div class="grid grid-cols-2 gap-3 pt-4 border-t border-slate-100">
-                        <a href="/chuong/<%= chuong.so_thu_tu %>" class="text-center py-2 bg-slate-100 text-slate-700 rounded-lg font-bold text-sm hover:bg-slate-200 transition">
-                            <i class="fa-solid fa-book-open-reader mr-1"></i> Học lý thuyết
-                        </a>
-                        <a href="/list_exams?type=theo_chuong&chuong_id=<%= chuong.so_thu_tu %>" class="text-center py-2 bg-brand-red/10 text-brand-red rounded-lg font-bold text-sm hover:bg-brand-red hover:text-white transition">
-                            <i class="fa-solid fa-pen-clip mr-1"></i> Luyện đề
-                        </a>
-                    </div>
+                <% }) %>
+            <% } else { %>
+                <div class="col-span-full py-12 text-center text-slate-500 bg-white rounded-2xl border border-dashed border-slate-300">
+                    <i class="fa-solid fa-folder-open text-4xl mb-3 text-slate-300"></i>
+                    <p>Chưa có dữ liệu chương học nào.</p>
                 </div>
-            <% }); %>
-        <% } %>
+            <% } %>
+        </div>
     </div>
-</div>
+    </div>
 
 <%- include('partials/footer') %>

@@ -3,7 +3,9 @@ const Lesson = require('../models/Lesson');
 const Exam = require('../models/Exam');
 const Question = require('../models/Question');
 const History = require('../models/History');
+const User = require('../models/User');
 
+// 1. Trang chủ - Danh sách chương học
 exports.getIndex = async (req, res) => {
     try {
         const dsChuong = await Chapter.find().sort({ so_thu_tu: 1 });
@@ -13,6 +15,7 @@ exports.getIndex = async (req, res) => {
     }
 };
 
+// 2. Chi tiết chương học - Danh sách bài học
 exports.getChapter = async (req, res) => {
     try {
         const chuong = await Chapter.findOne({ so_thu_tu: req.params.id });
@@ -24,6 +27,7 @@ exports.getChapter = async (req, res) => {
     }
 };
 
+// 3. Danh sách đề thi (Thi thử / Ôn tập theo chương)
 exports.getListExams = async (req, res) => {
     try {
         const type = req.query.type || 'thi_thu';
@@ -47,6 +51,7 @@ exports.getListExams = async (req, res) => {
     }
 };
 
+// 4. Giao diện phòng thi - Làm bài trắc nghiệm
 exports.getExam = async (req, res) => {
     try {
         if (!req.session.userId) return res.redirect('/login');
@@ -58,6 +63,7 @@ exports.getExam = async (req, res) => {
     }
 };
 
+// 5. Xử lý nộp bài thi - Chấm điểm và lưu lịch sử
 exports.postSubmitExam = async (req, res) => {
     try {
         if (!req.session.userId) return res.status(401).json({ status: 'error', message: 'Hết phiên đăng nhập' });
@@ -97,12 +103,28 @@ exports.postSubmitExam = async (req, res) => {
     }
 };
 
+// 6. Xem lại kết quả chi tiết của bài thi vừa làm
 exports.getResult = async (req, res) => {
     try {
         const history = await History.findById(req.params.id)
             .populate('bai_thi_id')
             .populate('chi_tiet.cau_hoi_id');
         res.render('result', { session: req.session, history });
+    } catch (err) {
+        res.status(500).render('error', { message: err.message });
+    }
+};
+
+// 7. Trang cá nhân hồ sơ & Lịch sử làm bài thi
+exports.getProfile = async (req, res) => {
+    try {
+        if (!req.session.userId) return res.redirect('/login');
+        
+        const user = await User.findById(req.session.userId);
+        const histories = await History.find({ nguoi_dung_id: req.session.userId })
+                                       .sort({ createdAt: -1 });
+                                       
+        res.render('profile', { session: req.session, user, histories });
     } catch (err) {
         res.status(500).render('error', { message: err.message });
     }

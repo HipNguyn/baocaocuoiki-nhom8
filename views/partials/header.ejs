@@ -3,58 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= typeof pageTitle !== 'undefined' ? pageTitle : 'Ôn Thi Tư Tưởng Hồ Chí Minh' %></title>
-    <link rel="stylesheet" href="/css/style.css">
+    <title>Hệ thống ôn thi trắc nghiệm TTHCM</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@400;700;900&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'brand-red': '#c62828',
-                        'brand-gold': '#fbc02d',
-                        'brand-dark': '#1e293b',
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        serif: ['Merriweather', 'serif'],
-                    }
-                }
-            }
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #f8fafc; 
         }
-    </script>
+    </style>
 </head>
-<body class="text-slate-800 antialiased bg-slate-50 flex flex-col min-h-screen">
-    
-    <header class="fixed w-full z-50 bg-white/95 backdrop-blur-md shadow-sm border-b border-slate-100 transition-all duration-300 h-20" id="main-header">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8 h-full">
-            <div class="flex justify-between items-center h-full">
-                <a href="/index" class="flex items-center gap-3 group">
-                    <div class="w-10 h-10 bg-brand-red rounded-lg flex items-center justify-center text-white font-bold text-xl group-hover:bg-red-700 transition shadow-lg shadow-red-200">
-                        <i class="fa-solid fa-star text-brand-gold text-sm"></i>
+<body class="flex flex-col min-h-screen">
+    <nav class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                
+                <div class="flex items-center">
+                    <a href="/index" class="flex items-center gap-2 text-xl font-bold text-blue-700 hover:text-blue-800 transition">
+                        <i class="fa-solid fa-graduation-cap text-2xl"></i>
+                        <span>Ôn Thi TTHCM</span>
+                    </a>
+                    
+                    <div class="hidden md:flex ml-10 space-x-2">
+                        <a href="/index" class="text-slate-600 hover:bg-blue-50 hover:text-blue-600 px-4 py-2 rounded-lg font-medium transition">
+                            <i class="fa-solid fa-house mr-1"></i> Trang chủ
+                        </a>
+                        <a href="/list_exams?type=thi_thu" class="text-slate-600 hover:bg-blue-50 hover:text-blue-600 px-4 py-2 rounded-lg font-medium transition">
+                            <i class="fa-solid fa-file-lines mr-1"></i> Đề thi thử
+                        </a>
                     </div>
-                    <span class="font-serif font-bold text-xl md:text-2xl text-brand-red hidden sm:block tracking-tight">HCM Ideology</span>
-                </a>
-
-                <div class="flex items-center gap-4">
-                    <% if (session && session.userId) { %>
-                        <div class="flex items-center gap-3 bg-slate-100 py-1.5 px-3 rounded-full border border-slate-200">
-                            <img src="https://ui-avatars.com/api/?name=<%= session.userName %>&background=c62828&color=fff&rounded=true" alt="Avatar" class="w-8 h-8 rounded-full border-2 border-white shadow-sm">
-                            <span class="font-semibold text-sm text-slate-700 hidden sm:block"><%= session.userName %></span>
-                        </div>
+                </div>
+                
+                <div class="flex items-center space-x-3">
+                    <% if (typeof session !== 'undefined' && session.userId) { %>
                         <% if (session.role === 'admin') { %>
-                            <a href="/admin" class="text-sm font-bold text-blue-600 hover:text-blue-800 transition px-2"><i class="fa-solid fa-gauge mr-1"></i> Admin</a>
+                            <a href="/admin" class="text-slate-500 hover:text-slate-800 font-medium px-3 py-2 transition">
+                                <i class="fa-solid fa-gear"></i> Quản trị
+                            </a>
                         <% } %>
-                        <a href="/logout" class="text-slate-400 hover:text-brand-red transition p-2" title="Đăng xuất"><i class="fa-solid fa-right-from-bracket text-lg"></i></a>
+                        
+                        <a href="/profile" class="flex items-center gap-2 text-slate-700 hover:text-blue-600 font-medium px-4 py-2 bg-slate-50 hover:bg-blue-50 rounded-lg border border-slate-200 transition shadow-sm">
+                            <i class="fa-solid fa-circle-user text-xl text-blue-500"></i>
+                            <span>Hồ sơ cá nhân</span>
+                        </a>
+                        
+                        <a href="/logout" class="text-red-500 hover:bg-red-50 hover:text-red-600 font-medium px-3 py-2 rounded-lg transition" title="Đăng xuất">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                        </a>
                     <% } else { %>
-                        <a href="/login" class="px-5 py-2.5 text-sm font-bold text-slate-600 hover:text-brand-red transition">Đăng nhập</a>
-                        <a href="/login" class="px-5 py-2.5 text-sm font-bold bg-brand-red text-white rounded-lg hover:bg-red-700 transition shadow-lg shadow-red-200">Đăng ký ngay</a>
+                        <a href="/login" class="text-slate-600 hover:text-blue-600 font-medium px-4 py-2 transition">Đăng nhập</a>
+                        <a href="/register" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-lg transition shadow-sm">Đăng ký</a>
                     <% } %>
                 </div>
+                
             </div>
         </div>
-    </header>
-    
-    <main class="container mx-auto px-4 pt-24 pb-16 flex-grow">
+    </nav>
+    <main class="flex-grow">
