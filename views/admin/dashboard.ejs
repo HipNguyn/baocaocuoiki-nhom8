@@ -1,6 +1,6 @@
 <%- include('../partials/header') %>
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-8 relative">
     
     <div class="mb-8">
         <h1 class="text-3xl font-bold text-slate-800 border-l-4 border-red-600 pl-4 mb-6">Bảng Điều Khiển Quản Trị</h1>
@@ -25,7 +25,6 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
             <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
                 <h2 class="font-bold text-slate-700 text-lg"><i class="fa-solid fa-users mr-2"></i>Tài khoản hệ thống</h2>
@@ -72,13 +71,9 @@
                     <tbody>
                         <% histories.forEach(h => { %>
                             <tr class="border-b last:border-0 hover:bg-slate-50">
-                                <td class="py-3 font-medium text-slate-800">
-                                    <%= h.nguoi_dung_id ? h.nguoi_dung_id.ho_va_ten : 'Đã xóa tài khoản' %>
-                                </td>
+                                <td class="py-3 font-medium text-slate-800"><%= h.nguoi_dung_id ? h.nguoi_dung_id.ho_va_ten : 'Ẩn danh' %></td>
                                 <td class="py-3 text-slate-500 truncate max-w-[150px]"><%= h.ten_bai_thi %></td>
-                                <td class="py-3 text-center font-bold <%= h.diem_so >= 5 ? 'text-green-600' : 'text-red-600' %>">
-                                    <%= h.diem_so %>
-                                </td>
+                                <td class="py-3 text-center font-bold <%= h.diem_so >= 5 ? 'text-green-600' : 'text-red-600' %>"><%= h.diem_so %></td>
                             </tr>
                         <% }) %>
                     </tbody>
@@ -89,11 +84,11 @@
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden lg:col-span-2">
             <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
                 <h2 class="font-bold text-slate-700 text-lg"><i class="fa-solid fa-list-check mr-2"></i>Ngân hàng câu hỏi</h2>
-                <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow-sm text-sm font-bold transition">
+                <button onclick="openAddModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow-sm text-sm font-bold transition">
                     <i class="fa-solid fa-plus mr-1"></i> Thêm câu hỏi
                 </button>
             </div>
-            <div class="p-6 overflow-y-auto max-h-96">
+            <div class="p-6 overflow-y-auto max-h-[500px]">
                 <table class="w-full text-left text-sm">
                     <thead>
                         <tr class="text-slate-500 border-b">
@@ -108,13 +103,13 @@
                             <tr class="border-b last:border-0 hover:bg-slate-50">
                                 <td class="py-3 font-bold text-center text-slate-500"><%= q.chuong_id %></td>
                                 <td class="py-3 text-slate-800 font-medium pr-4 line-clamp-2"><%= q.cauHoi %></td>
-                                <td class="py-3 text-emerald-600 font-bold">Đ.án <%= q.dapAn %></td>
+                                <td class="py-3 text-emerald-600 font-bold"><%= q.dapAn %></td>
                                 <td class="py-3 text-right space-x-2">
-                                    <button class="text-amber-500 hover:text-amber-700 transition p-1" title="Sửa">
-                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    <button onclick="openEditModal('<%= q._id %>')" class="text-amber-500 hover:bg-amber-100 rounded px-2 py-1 transition" title="Sửa">
+                                        <i class="fa-solid fa-pen-to-square"></i> Sửa
                                     </button>
-                                    <button class="text-red-500 hover:text-red-700 transition p-1" title="Xóa">
-                                        <i class="fa-solid fa-trash"></i>
+                                    <button onclick="deleteQuestion('<%= q._id %>')" class="text-red-500 hover:bg-red-100 rounded px-2 py-1 transition" title="Xóa">
+                                        <i class="fa-solid fa-trash"></i> Xóa
                                     </button>
                                 </td>
                             </tr>
@@ -123,8 +118,166 @@
                 </table>
             </div>
         </div>
-
     </div>
 </div>
+
+<div id="questionModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center z-50 transition-opacity">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 overflow-hidden transform transition-all">
+        <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+            <h3 id="modalTitle" class="text-xl font-bold text-slate-800">Thêm câu hỏi mới</h3>
+            <button onclick="closeModal()" class="text-slate-400 hover:text-red-500 text-xl transition"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        
+        <form id="questionForm" class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">Chương số</label>
+                    <input type="number" id="chuong_id" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">Mức độ (VD: de, trung_binh, kho)</label>
+                    <input type="text" id="muc_do" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Nội dung câu hỏi</label>
+                <textarea id="cauHoi" rows="2" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">Đáp án A</label>
+                    <input type="text" id="cauA" required class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">Đáp án B</label>
+                    <input type="text" id="cauB" required class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">Đáp án C</label>
+                    <input type="text" id="cauC" required class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">Đáp án D</label>
+                    <input type="text" id="cauD" required class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Đáp án đúng</label>
+                <select id="dapAn" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                </select>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                <button type="button" onclick="closeModal()" class="px-5 py-2 text-slate-600 bg-slate-100 hover:bg-slate-200 font-semibold rounded-lg transition">Hủy</button>
+                <button type="submit" class="px-5 py-2 text-white bg-blue-600 hover:bg-blue-700 font-semibold rounded-lg shadow-md transition">Lưu câu hỏi</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script id="questionData" type="application/json">
+    <%- JSON.stringify(questions || []) %>
+</script>
+
+<script>
+    // 2. Lấy dữ liệu an toàn ra cho Javascript dùng
+    const questionList = JSON.parse(document.getElementById('questionData').textContent);
+    let currentEditId = null;
+
+    // Hàm mở bảng Thêm mới
+    function openAddModal() {
+        currentEditId = null;
+        document.getElementById('modalTitle').innerText = 'Thêm câu hỏi mới';
+        document.getElementById('questionForm').reset();
+        document.getElementById('questionModal').classList.remove('hidden');
+    }
+
+    // Hàm mở bảng Sửa (tự động điền dữ liệu cũ)
+    function openEditModal(id) {
+        currentEditId = id;
+        document.getElementById('modalTitle').innerText = 'Chỉnh sửa câu hỏi';
+        const q = questionList.find(x => x._id === id);
+        
+        if(q) {
+            document.getElementById('chuong_id').value = q.chuong_id;
+            document.getElementById('muc_do').value = q.muc_do;
+            document.getElementById('cauHoi').value = q.cauHoi;
+            document.getElementById('cauA').value = q.cauA || '';
+            document.getElementById('cauB').value = q.cauB || '';
+            document.getElementById('cauC').value = q.cauC || '';
+            document.getElementById('cauD').value = q.cauD || '';
+            document.getElementById('dapAn').value = q.dapAn;
+            
+            document.getElementById('questionModal').classList.remove('hidden');
+        }
+    }
+
+    // Hàm đóng bảng
+    function closeModal() {
+        document.getElementById('questionModal').classList.add('hidden');
+    }
+
+    // Sự kiện Bấm nút Lưu (Sẽ gọi API POST hoặc PUT)
+    document.getElementById('questionForm').addEventListener('submit', async (e) => {
+        e.preventDefault(); // Ngăn web load lại
+        
+        // Gom dữ liệu từ các ô nhập liệu
+        const data = {
+            chuong_id: document.getElementById('chuong_id').value,
+            muc_do: document.getElementById('muc_do').value,
+            cauHoi: document.getElementById('cauHoi').value,
+            cauA: document.getElementById('cauA').value,
+            cauB: document.getElementById('cauB').value,
+            cauC: document.getElementById('cauC').value,
+            cauD: document.getElementById('cauD').value,
+            dapAn: document.getElementById('dapAn').value
+        };
+
+        const url = currentEditId ? `/admin/question/${currentEditId}` : '/admin/question';
+        const method = currentEditId ? 'PUT' : 'POST';
+
+        try {
+            const res = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            
+            if(res.ok) {
+                alert(currentEditId ? 'Cập nhật thành công!' : 'Thêm câu hỏi thành công!');
+                window.location.reload(); // Tải lại trang để hiện câu hỏi mới
+            } else {
+                const err = await res.json();
+                alert('Lỗi: ' + (err.message || 'Kiểm tra lại dữ liệu nhập (đặc biệt là Mức độ)'));
+            }
+        } catch(e) {
+            alert('Lỗi kết nối tới Server!');
+        }
+    });
+
+    // Sự kiện Xóa câu hỏi (Gọi API DELETE)
+    async function deleteQuestion(id) {
+        if(confirm('Bạn có chắc chắn muốn xóa câu hỏi này không? Thao tác không thể hoàn tác!')) {
+            try {
+                const res = await fetch(`/admin/question/${id}`, { method: 'DELETE' });
+                if(res.ok) {
+                    alert('Đã xóa câu hỏi thành công!');
+                    window.location.reload();
+                } else {
+                    alert('Xóa thất bại!');
+                }
+            } catch(e) {
+                alert('Lỗi kết nối tới Server!');
+            }
+        }
+    }
+</script>
 
 <%- include('../partials/footer') %>

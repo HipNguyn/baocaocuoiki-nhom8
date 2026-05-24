@@ -36,3 +36,61 @@ exports.getDashboard = async (req, res) => {
         res.status(500).send('Lỗi Server: ' + err.message);
     }
 };
+
+// ================= PHẦN API CRUD (CHO THUNDER CLIENT TEST) =================
+
+// [CREATE] - API Thêm mới câu hỏi
+exports.createQuestion = async (req, res) => {
+    try {
+        // Đã bổ sung hứng đầy đủ 4 đáp án và mức độ để khớp với CSDL
+        const { chuong_id, cauHoi, cauA, cauB, cauC, cauD, dapAn, muc_do } = req.body;
+        
+        // Kiểm tra dữ liệu đầu vào
+        if (!chuong_id || !cauHoi || !cauA || !cauB || !cauC || !cauD || !dapAn || !muc_do) {
+            return res.status(400).json({ message: "Vui lòng nhập đầy đủ thông tin câu hỏi và các đáp án!" });
+        }
+        
+        const newQuestion = await Question.create({ 
+            chuong_id, cauHoi, cauA, cauB, cauC, cauD, dapAn, muc_do 
+        });
+        res.status(201).json({ message: "✅ Thêm câu hỏi thành công!", data: newQuestion });
+    } catch (err) {
+        res.status(500).json({ message: "Lỗi Server", error: err.message });
+    }
+};
+
+// [UPDATE] - API Sửa câu hỏi
+exports.updateQuestion = async (req, res) => {
+    try {
+        const questionId = req.params.id;
+        const { chuong_id, cauHoi, cauA, cauB, cauC, cauD, dapAn, muc_do } = req.body;
+        
+        const updatedQuestion = await Question.findByIdAndUpdate(
+            questionId, 
+            { chuong_id, cauHoi, cauA, cauB, cauC, cauD, dapAn, muc_do }, 
+            { new: true }
+        );
+        
+        if (!updatedQuestion) {
+            return res.status(404).json({ message: "Không tìm thấy câu hỏi này!" });
+        }
+        res.json({ message: "✅ Cập nhật câu hỏi thành công!", data: updatedQuestion });
+    } catch (err) {
+        res.status(500).json({ message: "Lỗi Server", error: err.message });
+    }
+};
+
+// [DELETE] - API Xóa câu hỏi
+exports.deleteQuestion = async (req, res) => {
+    try {
+        const questionId = req.params.id;
+        const deletedQuestion = await Question.findByIdAndDelete(questionId);
+        
+        if (!deletedQuestion) {
+            return res.status(404).json({ message: "Không tìm thấy câu hỏi này!" });
+        }
+        res.json({ message: "✅ Xóa câu hỏi thành công!" });
+    } catch (err) {
+        res.status(500).json({ message: "Lỗi Server", error: err.message });
+    }
+};

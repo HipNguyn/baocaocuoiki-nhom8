@@ -27,6 +27,7 @@
             </div>
         </div>
     </div>
+    
     <div id="lo-trinh" class="mb-12">
         <div class="mb-8 border-b pb-4">
             <h2 class="text-3xl font-bold text-slate-800 flex items-center gap-3">
@@ -47,7 +48,7 @@
                             <p class="text-slate-500 text-sm line-clamp-3"><%= chuong.noi_dung || 'Nội dung đang cập nhật...' %></p>
                         </div>
                         <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-between items-center mt-auto">
-                            <a href="/chuong/<%= chuong.so_thu_tu %>" class="text-blue-600 font-semibold hover:text-blue-800 transition flex items-center gap-1">
+                            <a href="/ontap/<%= chuong.so_thu_tu %>" class="text-blue-600 font-semibold hover:text-blue-800 transition flex items-center gap-1">
                                 Vào học <i class="fa-solid fa-arrow-right text-sm"></i>
                             </a>
                             <a href="/list_exams?type=theo_chuong&chuong_id=<%= chuong.so_thu_tu %>" class="text-emerald-600 font-semibold hover:text-emerald-800 transition flex items-center gap-1">
@@ -64,6 +65,6 @@
             <% } %>
         </div>
     </div>
-    </div>
+</div>
 
 <%- include('partials/footer') %>
