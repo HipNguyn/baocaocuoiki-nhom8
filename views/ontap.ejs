@@ -22,26 +22,38 @@
                         <span><%= q.cauHoi %></span>
                     </h3>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 pl-12">
-                        <div class="p-3 bg-slate-50 border border-slate-100 rounded-xl text-slate-700"><span class="font-bold mr-2">A.</span><%= q.cauA %></div>
-                        <div class="p-3 bg-slate-50 border border-slate-100 rounded-xl text-slate-700"><span class="font-bold mr-2">B.</span><%= q.cauB %></div>
-                        <div class="p-3 bg-slate-50 border border-slate-100 rounded-xl text-slate-700"><span class="font-bold mr-2">C.</span><%= q.cauC %></div>
-                        <div class="p-3 bg-slate-50 border border-slate-100 rounded-xl text-slate-700"><span class="font-bold mr-2">D.</span><%= q.cauD %></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 pl-12 text-sm">
+                        <div id="opt-<%= q._id %>-A" onclick="checkReviewAnswer('<%= q._id %>', 'A', '<%= q.dapAn %>')" 
+                             class="p-3 bg-slate-50 border-2 border-slate-100 rounded-xl text-slate-700 cursor-pointer hover:bg-blue-50 hover:border-blue-200 transition">
+                            <span class="font-bold mr-2">A.</span><%= q.cauA %>
+                        </div>
+                        <div id="opt-<%= q._id %>-B" onclick="checkReviewAnswer('<%= q._id %>', 'B', '<%= q.dapAn %>')" 
+                             class="p-3 bg-slate-50 border-2 border-slate-100 rounded-xl text-slate-700 cursor-pointer hover:bg-blue-50 hover:border-blue-200 transition">
+                            <span class="font-bold mr-2">B.</span><%= q.cauB %>
+                        </div>
+                        <div id="opt-<%= q._id %>-C" onclick="checkReviewAnswer('<%= q._id %>', 'C', '<%= q.dapAn %>')" 
+                             class="p-3 bg-slate-50 border-2 border-slate-100 rounded-xl text-slate-700 cursor-pointer hover:bg-blue-50 hover:border-blue-200 transition">
+                            <span class="font-bold mr-2">C.</span><%= q.cauC %>
+                        </div>
+                        <div id="opt-<%= q._id %>-D" onclick="checkReviewAnswer('<%= q._id %>', 'D', '<%= q.dapAn %>')" 
+                             class="p-3 bg-slate-50 border-2 border-slate-100 rounded-xl text-slate-700 cursor-pointer hover:bg-blue-50 hover:border-blue-200 transition">
+                            <span class="font-bold mr-2">D.</span><%= q.cauD %>
+                        </div>
                     </div>
 
                     <div class="pl-12">
-                        <button onclick="toggleAnswer('<%= q._id %>')" class="text-emerald-600 font-semibold hover:text-emerald-800 transition text-sm flex items-center gap-1">
+                        <button id="btn-xem-<%= q._id %>" onclick="showAnswerOnly('<%= q._id %>', '<%= q.dapAn %>')" 
+                                class="text-emerald-600 font-semibold hover:text-emerald-800 transition text-sm flex items-center gap-1">
                             <i class="fa-solid fa-eye"></i> Xem đáp án
                         </button>
-                        <div id="dapan-<%= q._id %>" class="hidden mt-3 p-3 bg-emerald-50 border border-emerald-100 text-emerald-800 rounded-lg font-medium">
-                            ĐÁP ÁN ĐÚNG: <%= q.dapAn %>
-                        </div>
+                        <div id="dapan-<%= q._id %>" class="hidden mt-3 p-3 rounded-lg font-medium text-sm">
+                            </div>
                     </div>
                 </div>
             <% }) %>
         <% } else { %>
             <div class="text-center py-16 bg-white rounded-2xl border border-dashed border-slate-300">
-                <img src="https://cdn-icons-png.flaticon.com/512/7486/7486831.png" class="w-24 h-24 mx-auto mb-4 opacity-50" alt="Empty">
+                <i class="fa-solid fa-box-open text-6xl text-slate-300 mb-4"></i>
                 <h3 class="text-xl font-bold text-slate-600 mb-2">Chưa có dữ liệu</h3>
                 <p class="text-slate-500">Giảng viên chưa thêm câu hỏi nào cho Chương <%= chuongId %>.</p>
             </div>
@@ -50,13 +62,50 @@
 </div>
 
 <script>
-    function toggleAnswer(id) {
-        const dapanDiv = document.getElementById('dapan-' + id);
-        if (dapanDiv.classList.contains('hidden')) {
-            dapanDiv.classList.remove('hidden');
+    // Biến lưu trữ các câu đã trả lời để không cho click lại nhiều lần
+    let answeredQuestions = {};
+
+    // Hàm xử lý khi người dùng TỰ CLICK CHỌN 1 đáp án
+    function checkReviewAnswer(qId, selectedOpt, correctOpt) {
+        if (answeredQuestions[qId]) return; // Nếu đã trả lời rồi thì bỏ qua
+        answeredQuestions[qId] = true;
+
+        // Ẩn nút "Xem đáp án" đi
+        document.getElementById('btn-xem-' + qId).classList.add('hidden');
+        
+        const dapanDiv = document.getElementById('dapan-' + qId);
+        dapanDiv.classList.remove('hidden');
+
+        // Logic kiểm tra Đúng / Sai
+        if (selectedOpt === correctOpt) {
+            // Đúng: Tô xanh đáp án vừa chọn
+            document.getElementById(`opt-${qId}-${selectedOpt}`).className = "p-3 bg-emerald-50 border-2 border-emerald-400 text-emerald-800 font-bold rounded-xl transition";
+            dapanDiv.className = "mt-3 p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-lg font-medium text-sm";
+            dapanDiv.innerHTML = `<i class="fa-solid fa-circle-check mr-1"></i> Chính xác! Đáp án đúng là ${correctOpt}.`;
         } else {
-            dapanDiv.classList.add('hidden');
+            // Sai: Tô đỏ đáp án vừa chọn, và Tô xanh đáp án đúng
+            document.getElementById(`opt-${qId}-${selectedOpt}`).className = "p-3 bg-red-50 border-2 border-red-400 text-red-800 font-bold rounded-xl transition";
+            document.getElementById(`opt-${qId}-${correctOpt}`).className = "p-3 bg-emerald-50 border-2 border-emerald-400 text-emerald-800 font-bold rounded-xl transition";
+            
+            dapanDiv.className = "mt-3 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg font-medium text-sm";
+            dapanDiv.innerHTML = `<i class="fa-solid fa-circle-xmark mr-1"></i> Sai rồi! Đáp án đúng phải là ${correctOpt}.`;
         }
+    }
+
+    // Hàm xử lý khi người dùng BẤM NÚT "XEM ĐÁP ÁN" (Lười không muốn chọn)
+    function showAnswerOnly(qId, correctOpt) {
+        if (answeredQuestions[qId]) return;
+        answeredQuestions[qId] = true;
+        
+        document.getElementById('btn-xem-' + qId).classList.add('hidden');
+        
+        // Tô xanh đáp án đúng
+        document.getElementById(`opt-${qId}-${correctOpt}`).className = "p-3 bg-emerald-50 border-2 border-emerald-400 text-emerald-800 font-bold rounded-xl transition";
+        
+        const dapanDiv = document.getElementById('dapan-' + qId);
+        dapanDiv.classList.remove('hidden');
+        dapanDiv.className = "mt-3 p-3 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg font-medium text-sm";
+        dapanDiv.innerHTML = `<i class="fa-solid fa-lightbulb mr-1"></i> Đáp án đúng là ${correctOpt}.`;
     }
 </script>
 

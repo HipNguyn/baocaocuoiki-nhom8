@@ -8,52 +8,103 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .option-card:hover { background-color: #fef2f2; border-color: #c62828; }
-        .option-selected { background-color: #fef2f2; border-color: #c62828; position: relative; }
-        .option-selected::after { content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #c62828; }
+        .option-card:hover { background-color: #fef2f2; border-color: #dc2626; }
+        .option-selected { background-color: #fef2f2; border-color: #dc2626; position: relative; }
+        .option-selected::after { content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #dc2626; }
         .q-grid-item.active { background: #1e293b; color: white; border-color: #1e293b; }
-        .q-grid-item.answered { background: #c62828; color: white; border-color: #c62828; }
+        .q-grid-item.answered { background: #dc2626; color: white; border-color: #dc2626; }
+        
+        /* Tùy chỉnh thanh cuộn cho danh sách câu hỏi */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 h-screen flex flex-col overflow-hidden">
-    <header class="bg-white/95 backdrop-blur-md shadow-sm border-b border-slate-100 h-16 flex-none z-50">
+    <header class="bg-white/95 backdrop-blur-md shadow-sm border-b border-slate-200 h-16 flex-none z-50">
         <div class="container mx-auto px-4 h-full flex justify-between items-center">
-            <a href="javascript:history.back()" class="text-slate-500 hover:text-brand-red mr-4"><i class="fa-solid fa-arrow-left"></i></a>
-            <h1 class="font-serif font-bold text-lg text-brand-red truncate max-w-xs flex-grow"><%= exam.tieu_de %></h1>
-            <div class="glass-card px-4 py-1 rounded-full flex items-center gap-2 border-brand-red/20 mr-4">
-                <i class="fa-regular fa-clock text-brand-red"></i>
-                <span id="timer" class="font-mono font-bold text-xl text-slate-800">--:--</span>
+            <a href="javascript:history.back()" class="text-slate-500 hover:text-red-600 mr-4 transition">
+                <i class="fa-solid fa-arrow-left text-lg"></i>
+            </a>
+            <h1 class="font-serif font-bold text-lg text-red-700 truncate max-w-xs flex-grow"><%= exam.tieu_de %></h1>
+            
+            <div class="px-4 py-1.5 bg-red-50 rounded-full flex items-center gap-2 border border-red-100 mr-4 shadow-sm">
+                <i class="fa-regular fa-clock text-red-600"></i>
+                <span id="timer" class="font-mono font-bold text-xl text-red-700">--:--</span>
             </div>
-            <button onclick="submitExam()" class="bg-brand-red text-white px-5 py-2 rounded-lg font-bold shadow-md hover:bg-red-700 text-sm">Nộp bài</button>
+            
+            <button onclick="submitExam()" class="bg-slate-800 text-white px-5 py-2 rounded-lg font-bold shadow-md hover:bg-slate-700 transition text-sm flex items-center gap-2">
+                <i class="fa-solid fa-paper-plane"></i> Nộp bài
+            </button>
         </div>
     </header>
 
     <main class="flex-grow container mx-auto px-4 py-6 flex gap-6 overflow-hidden h-[calc(100vh-64px)]">
         <div class="w-full lg:w-3/4 flex flex-col h-full gap-4">
-            <div class="w-full bg-slate-200 rounded-full h-1.5 flex-none"><div id="progress-bar" class="bg-brand-gold h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div></div>
-            <div class="glass-card bg-white rounded-2xl p-8 flex-grow overflow-y-auto shadow-sm border border-slate-100 relative">
+            <div class="w-full bg-slate-200 rounded-full h-2 flex-none overflow-hidden shadow-inner">
+                <div id="progress-bar" class="bg-amber-500 h-full rounded-full transition-all duration-300 relative" style="width: 0%"></div>
+            </div>
+            
+            <div class="bg-white rounded-2xl p-8 flex-grow overflow-y-auto shadow-sm border border-slate-200 relative">
                 <div id="question-container"></div>
             </div>
+            
             <div class="flex justify-between items-center flex-none py-2">
-                <button onclick="changeQuestion(-1)" id="btn-prev" class="px-6 py-3 rounded-xl border border-slate-200 hover:bg-slate-50 disabled:opacity-50 font-semibold text-slate-600">Trước</button>
-                <button onclick="changeQuestion(1)" id="btn-next" class="px-8 py-3 rounded-xl bg-brand-red text-white font-bold shadow-lg">Sau</button>
+                <button onclick="changeQuestion(-1)" id="btn-prev" class="px-6 py-3 rounded-xl border-2 border-slate-200 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed font-bold text-slate-600 flex items-center gap-2 transition">
+                    <i class="fa-solid fa-chevron-left"></i> Trước
+                </button>
+                
+                <button onclick="changeQuestion(1)" id="btn-next" class="px-8 py-3 rounded-xl border-2 border-slate-200 hover:bg-slate-50 text-slate-600 font-bold shadow-sm flex items-center gap-2 transition-colors">
+                    Sau <i class="fa-solid fa-chevron-right"></i>
+                </button>
             </div>
         </div>
+
         <div class="hidden lg:flex w-1/4 flex-col h-full">
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 h-full flex flex-col">
-                <h3 class="font-bold text-slate-700 mb-4">Danh sách câu hỏi</h3>
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 h-full flex flex-col">
+                <h3 class="font-bold text-slate-800 mb-4 border-b pb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-grip text-blue-600"></i> Danh sách câu hỏi
+                </h3>
                 <div class="flex-grow overflow-y-auto pr-2 custom-scrollbar">
                     <div id="question-grid" class="grid grid-cols-5 gap-2"></div>
+                </div>
+                
+                <div class="mt-4 pt-4 border-t border-slate-100 space-y-2 text-xs font-medium text-slate-600">
+                    <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-slate-200 border border-slate-300"></div> Chưa làm</div>
+                    <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-slate-800"></div> Đang xem</div>
+                    <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-red-600"></div> Đã trả lời</div>
                 </div>
             </div>
         </div>
     </main>
 
+    <script id="examData" type="application/json">
+        {
+            "quizData": <%- JSON.stringify(exam.cau_hoi || []) %>,
+            "examId": "<%= exam._id %>",
+            "timeLimit": <%= exam.thoi_gian || 45 %>
+        }
+    </script>
+
     <script>
-        // Dữ liệu được nhúng trực tiếp từ MongoDB thông qua EJS
-        const quizData = <%- JSON.stringify(exam.cau_hoi) %>;
-        const examId = '<%= exam._id %>';
-        const timeLimit = <%= exam.thoi_gian || 45 %>;
+        // Thuật toán xáo trộn mảng (Fisher-Yates Shuffle) cực kỳ ngẫu nhiên
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Lấy dữ liệu an toàn ra cho Javascript dùng
+        const rawData = JSON.parse(document.getElementById('examData').textContent);
+        
+        // Cho danh sách câu hỏi chạy qua thuật toán xáo trộn trước khi gán
+        const quizData = shuffleArray(rawData.quizData);
+        
+        const examId = rawData.examId;
+        const timeLimit = rawData.timeLimit;
 
         let currentQuestionIndex = 0;
         let userAnswers = new Array(quizData.length).fill(null);
@@ -72,7 +123,7 @@
             grid.innerHTML = '';
             quizData.forEach((_, i) => {
                 const item = document.createElement('div');
-                item.className = `q-grid-item flex items-center justify-center w-9 h-9 rounded-lg border border-slate-200 text-sm font-semibold cursor-pointer hover:bg-slate-100 ${i===0?'active':''}`;
+                item.className = `q-grid-item flex items-center justify-center w-10 h-10 rounded-lg border border-slate-200 text-sm font-bold cursor-pointer hover:bg-slate-100 transition-colors ${i===0?'active':''}`;
                 item.innerText = i + 1;
                 item.onclick = () => loadQuestion(i);
                 item.id = `grid-item-${i}`;
@@ -88,26 +139,25 @@
             document.querySelectorAll('.q-grid-item').forEach(e => e.classList.remove('active'));
             document.getElementById(`grid-item-${index}`).classList.add('active');
 
-            // Format mảng option cho giống bản cũ
             const options = [
                 {code: 'A', content: q.cauA}, {code: 'B', content: q.cauB},
                 {code: 'C', content: q.cauC}, {code: 'D', content: q.cauD}
             ];
 
             let html = `
-                <div class="mb-6 animate-fade-in">
-                    <span class="text-brand-red font-bold text-sm bg-red-50 px-3 py-1 rounded-full mb-3 inline-block">Câu ${index + 1}</span>
-                    <h3 class="text-xl font-serif font-bold text-slate-800 leading-snug">${q.cauHoi}</h3>
+                <div class="mb-6">
+                    <span class="text-red-700 font-bold text-sm bg-red-100 px-3 py-1 rounded-full mb-3 inline-block border border-red-200">Câu ${index + 1}</span>
+                    <h3 class="text-xl font-serif font-bold text-slate-800 leading-relaxed">${q.cauHoi}</h3>
                 </div>
-                <div class="space-y-3 animate-fade-in">
+                <div class="space-y-3">
             `;
 
             options.forEach(opt => {
                 const isSelected = userAnswers[index] === opt.code ? 'option-selected' : '';
                 html += `
                     <div onclick="selectAnswer(${index}, '${opt.code}')" 
-                         class="option-card p-4 rounded-xl border border-slate-200 flex items-center gap-4 bg-white cursor-pointer transition-all ${isSelected}">
-                        <div class="w-8 h-8 rounded-full border-2 border-slate-300 flex items-center justify-center flex-none text-sm font-bold text-slate-500">${opt.code}</div>
+                         class="option-card p-4 rounded-xl border-2 border-slate-200 flex items-center gap-4 bg-white cursor-pointer transition-all ${isSelected}">
+                        <div class="w-8 h-8 rounded-full border-2 border-slate-300 flex items-center justify-center flex-none text-sm font-bold text-slate-500 transition-colors">${opt.code}</div>
                         <span class="text-slate-700 font-medium">${opt.content}</span>
                     </div>
                 `;
@@ -127,15 +177,15 @@
         function updateButtons() {
             document.getElementById('btn-prev').disabled = currentQuestionIndex === 0;
             const nextBtn = document.getElementById('btn-next');
+            
             if (currentQuestionIndex === quizData.length - 1) {
-                nextBtn.innerText = 'Nộp bài';
+                nextBtn.innerHTML = 'Nộp bài <i class="fa-solid fa-check"></i>';
                 nextBtn.onclick = submitExam;
-                nextBtn.classList.replace('bg-brand-red', 'bg-green-600');
+                nextBtn.className = 'px-8 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold shadow-md flex items-center gap-2 transition-colors';
             } else {
-                nextBtn.innerText = 'Sau';
+                nextBtn.innerHTML = 'Sau <i class="fa-solid fa-chevron-right"></i>';
                 nextBtn.onclick = () => changeQuestion(1);
-                nextBtn.classList.remove('bg-green-600');
-                nextBtn.classList.add('bg-brand-red');
+                nextBtn.className = 'px-8 py-3 rounded-xl border-2 border-slate-200 hover:bg-slate-50 text-slate-600 font-bold shadow-sm flex items-center gap-2 transition-colors';
             }
         }
 
@@ -157,13 +207,18 @@
                 const m = Math.floor(timeLeft/60).toString().padStart(2,'0');
                 const s = (timeLeft%60).toString().padStart(2,'0');
                 el.innerText = `${m}:${s}`;
+                
+                if(timeLeft <= 60) {
+                    el.classList.add('text-red-600', 'animate-pulse');
+                    el.classList.remove('text-red-700');
+                }
             }, 1000);
         }
 
         function submitExam() {
-            clearInterval(timerInterval);
+            if(!confirm('Bạn có chắc chắn muốn nộp bài thi ngay bây giờ?')) return;
             
-            // Lấy đáp án gửi lên Node.js Controller qua API
+            clearInterval(timerInterval);
             const details = [];
             quizData.forEach((q, i) => {
                 details.push({
