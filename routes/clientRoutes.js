@@ -2,6 +2,11 @@ const express = require('express');
 const router = express.Router();
 const clientController = require('../controllers/clientController');
 
+// Tự động chuyển hướng từ trang gốc (/) sang trang chủ (/index)
+router.get('/', (req, res) => {
+    res.redirect('/index');
+});
+
 // Tuyến đường trang chủ
 router.get('/index', clientController.getIndex);
 
