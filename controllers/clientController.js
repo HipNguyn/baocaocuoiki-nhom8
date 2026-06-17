@@ -133,17 +133,17 @@ exports.getProfile = async (req, res) => {
 // 8. Trang Ôn tập Lý thuyết (Hiển thị câu hỏi theo chương)
 exports.getOnTapChuong = async (req, res) => {
     try {
-        const chuongId = req.params.id;
-        // Tìm tất cả câu hỏi thuộc chương này
-        const questions = await Question.find({ chuong_id: chuongId });
-
-        res.render('ontap', { 
+        const chuong = await Chapter.findOne({ so_thu_tu: parseInt(req.params.id) });
+        if (!chuong) return res.redirect('/index');
+        
+        const dsBaiHoc = await Lesson.find({ chuong_id: chuong._id }).sort({ thu_tu: 1 });
+        
+        res.render('chuong', { 
             session: req.session, 
-            chuongId: chuongId, 
-            questions: questions 
+            chuong,
+            dsBaiHoc
         });
     } catch (err) {
-        // Đồng bộ dùng trang báo lỗi giống các hàm trên
         res.status(500).render('error', { message: err.message }); 
     }
 };
