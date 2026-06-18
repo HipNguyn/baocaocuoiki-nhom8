@@ -5,7 +5,6 @@ const bcrypt = require('bcryptjs');
 exports.getLogin = (req, res) => {
     if (req.session.userId) return res.redirect('/index');
     
-    // Bắt cái tín hiệu từ trang Đăng ký "trỏ" sang để báo thành công
     let successMsg = null;
     if (req.query.msg === 'registered') {
         successMsg = 'Đăng ký tài khoản thành công! Hãy đăng nhập.';
@@ -44,7 +43,20 @@ exports.getRegister = (req, res) => {
 
 exports.postRegister = async (req, res) => {
     try {
+        // [THÊM MỚI] Dòng in ra để bạn tự bắt bệnh trên Terminal
+        console.log("Dữ liệu Body nhận được từ Thunder Client:", req.body);
+
+        // [THÊM MỚI] Rào chắn 1: Bắt lỗi gửi sai định dạng (Thunder Client gửi sai tab)
+        if (!req.body || Object.keys(req.body).length === 0) {
+            return res.render('register', { session: req.session, error: 'Server không nhận được dữ liệu! Vui lòng chọn tab Form-encode trong Thunder Client.' });
+        }
+
         const { ho_va_ten, email, mat_khau, xac_nhan_mat_khau } = req.body;
+
+        // [THÊM MỚI] Rào chắn 2: Đảm bảo có mật khẩu mới đem đi mã hóa
+        if (!mat_khau || !email) {
+            return res.render('register', { session: req.session, error: 'Vui lòng điền đầy đủ Email và Mật khẩu!' });
+        }
 
         if (mat_khau !== xac_nhan_mat_khau) {
             return res.render('register', { session: req.session, error: 'Mật khẩu xác nhận không khớp!' });
@@ -64,7 +76,6 @@ exports.postRegister = async (req, res) => {
             role: 'user' 
         });
 
-        // ĐÃ SỬA: Chuyển hướng (trỏ) thẳng về đường link /login 
         res.redirect('/login?msg=registered');
 
     } catch (err) {
